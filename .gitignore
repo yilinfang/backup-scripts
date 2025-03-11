@@ -1,0 +1,6 @@
+*bak*
+*.json
+logs/
+
+# MacOS
+.DS_Store

@@ -29,7 +29,7 @@ with open(CONFIG_FILE, "r") as f:
     BACKUP_DIR = os.path.expanduser(config["BACKUP_DIR"])
     ZIP_PASSWORD = config["ZIP_PASSWORD"]
     MAX_BACKUPS = config["MAX_BACKUPS"]
-    LOG_FILE = os.path.expanduser(config["LOG_FILE"])
+    LOG_FILE = config.get("LOG_FILE", os.path.join(SCRIPT_DIR, "log", "bw-backup.log"))
 
 # Ensure log directory exists
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)

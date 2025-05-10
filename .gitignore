@@ -1,6 +1,9 @@
 *bak*
 *.json
+*.log
 logs/
+log/
+tmp/
 
 # MacOS
 .DS_Store

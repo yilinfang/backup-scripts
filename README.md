@@ -9,7 +9,7 @@ A Python script that automatically backs up your Bitwarden vault to encrypted ZI
 ### Prerequisites
 
 - Python 3.6+
-- Bitwarden CLI (bw) installed and available in PATH
+- Bitwarden CLI (bw) installed and available in PATH or npx is available
 
 ### Configuration
 

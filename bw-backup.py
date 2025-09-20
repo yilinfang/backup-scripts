@@ -55,19 +55,31 @@ def is_command_available(command):
     return shutil.which(command) is not None
 
 
-try:
-    # Ensure Bitwarden CLI is installed
-    if not is_command_available("bw"):
-        logging.error("Bitwarden CLI (bw) not available. Please install it first.")
+# Determine which bw command to use
+def get_bw_command():
+    if is_command_available("bw"):
+        logging.info("Using locally installed Bitwarden CLI (bw).")
+        return ["bw"]
+    elif is_command_available("npx"):
+        logging.info("Using Bitwarden CLI via npx (npx @bitwarden/cli).")
+        return ["npx", "--yes", "@bitwarden/cli"]
     else:
-        logging.info("Bitwarden CLI (bw) is available.")
+        logging.error(
+            "Neither bw nor npx is available. Please install Bitwarden CLI or npx."
+        )
+        exit(1)
+
+
+try:
+    # Get the appropriate bw command
+    bw_cmd = get_bw_command()
 
     # Log in to Bitwarden
     logging.info("Logging into Bitwarden...")
     login_env = os.environ.copy()
     login_env["BW_CLIENTID"] = bw_clientid
     login_env["BW_CLIENTSECRET"] = bw_clientsecret
-    if subprocess.run(["bw", "login", "--apikey"], env=login_env).returncode != 0:
+    if subprocess.run(bw_cmd + ["login", "--apikey"], env=login_env).returncode != 0:
         logging.error("Failed to login to Bitwarden")
         exit(1)
 
@@ -76,7 +88,7 @@ try:
     unlock_env = os.environ.copy()
     unlock_env["BW_PASSWORD"] = bw_password
     result = subprocess.run(
-        ["bw", "unlock", "--passwordenv", "BW_PASSWORD", "--raw"],
+        bw_cmd + ["unlock", "--passwordenv", "BW_PASSWORD", "--raw"],
         capture_output=True,
         text=True,
         env=unlock_env,
@@ -89,7 +101,7 @@ try:
 
     # Sync the vault
     logging.info("Syncing the vault...")
-    if subprocess.run(["bw", "sync", "--session", session]).returncode != 0:
+    if subprocess.run(bw_cmd + ["sync", "--session", session]).returncode != 0:
         logging.error("Failed to sync the vault")
         exit(1)
 
@@ -102,8 +114,8 @@ try:
     logging.info(f"Exporting vault to {backup_file}...")
     if (
         subprocess.run(
-            [
-                "bw",
+            bw_cmd
+            + [
                 "export",
                 "--output",
                 backup_file,
@@ -133,7 +145,7 @@ try:
 
     # Log out from Bitwarden
     logging.info("Logging out from Bitwarden...")
-    if subprocess.run(["bw", "logout"]).returncode != 0:
+    if subprocess.run(bw_cmd + ["logout"]).returncode != 0:
         logging.error("Failed to log out from Bitwarden")
         exit(1)
 

@@ -4,6 +4,7 @@
 logs/
 log/
 tmp/
+**/__pycache__/
 
 # MacOS
 .DS_Store
